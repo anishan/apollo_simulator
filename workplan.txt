@@ -1,0 +1,41 @@
+		~~~~~ OLIN INSTRUMENTATION LABORATORY ~~~~
+		****  WORK PLAN FOR GOING TO THE MOON ****
+
+11/28/16 Work Plan and Proposal 
+
+Encode the 11 types of instructions: Estimated 2.5 hours
+
+We need to build the following modules by the midpoint check in date: (estimated 5 hours)
+Erasable and Fixed Memory
+4 16-bit "central" registers 
+13 "other" registers
+Clock module with clock, 1/2 clock and 1/4 clock. 
+Control Logic Unit 
+
+Begin test benches with DUT passed: Estimated 1.5 hours
+
+General Confusion Part 1 Estimated: 5 hours
+
+Make sure first 11 instructions work properly: Estimated 8 hours
+
+Total Work Time Part 1: 22 hours
+
+12/7/16 Midpoint Check In 
+
+Encode 5 extra instructions for sine/cosine: Estimated 1 hour
+Make sure extra 5 instructions work properly: Estimated 4 hours
+Test benches for all modules made and overall: Estimated 3-4 hours 
+General Confusion Part 2: Estimated 7 hours
+Visual - either Slides or Poster depending on presentation format TBD. Estimated: 1 hour
+Documentation: Estimated 3 hours
+
+Total Work Time Part 2: 19 hours
+
+12/15/16 Final Project 
+
+Total Work Time (Part 1+ Part2): 41 hours!! 
+
+We realize this is a lot of hours, but it's probably incredibly accurate ;D
+
+		****  WORK PLAN FOR GOING TO THE MOON ****
+		~~~~~ OLIN INSTRUMENTATION LABORATORY ~~~~
