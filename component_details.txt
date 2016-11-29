@@ -1,0 +1,19 @@
+Registers
+A:  00000, 16-bit 	// accumulator (for general computation)
+LP: 00001, 16-bit	// lower accumulator (lower product after MP instructions)
+Q:  00002, 16-bit 	// return address register (remained from DV and return addr from TC)
+EB: 00003, 3-bit	// erasable bank register
+FB: 00004, 4-bit	// fixed bank register
+Z:  00005, 16-bit 	// next address (aka program counter)
+BB: 00006 			// both bank register, maybe the same as Sbank?
+
+Memory
+Erasable: 2 kilowords
+Fixed: 36 kilowords
+(words are 15-bit)
+
+
+Clock module with clock, 1/2 clock and 1/4 clock. 
+
+Block diagram here: http://pages.erau.edu/~ericksol/courses/sp300/images/agp_diag-2.jpg
+
