@@ -1,0 +1,13 @@
+http://history.nasa.gov/computers/Ch2-5.html
+
+https://books.google.com/books?id=3fKzL0HfJp4C&pg=PA71&lpg=PA71&dq=quarter+code+apollo&source=bl&ots=cG8N6lsUmF&sig=pcGWIcxa360XeLV69y97ZPVOIao&hl=en&sa=X&ved=0ahUKEwj31qjp0cvQAhUI44MKHS6LCLIQ6AEIGzAA#v=onepage&q&f=true
+
+https://www.ibiblio.org/apollo/Block1.html
+http://www.ibiblio.org/apollo/klabs/history/history_docs/r-393.pdf
+https://www.ibiblio.org/apollo/assembly_language_manual.html
+
+http://klabs.org/history/history_docs/mit_docs/integrated_circuits_reliability.htm
+
+http://tcf.pages.tcnj.edu/files/2013/12/Apollo-Guidance-Computer-2009.pdf
+
+http://pages.erau.edu/~ericksol/courses/sp300/images/agp_diag-2.jpg
