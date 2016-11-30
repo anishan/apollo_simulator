@@ -1,0 +1,42 @@
+                                +------------------+
+                                |      MEMORY      |
+                                |                  |
+                                |        |         |
+                                | ERASE- |  FIXED  |
+                                |  ABLE  |         |
+                                |        |         |
+                                +------------------+
+                                   ^ |       ^ |
+                                   | |       | |
+                                   | +---+   | |
+                 PARITY FAIL       |     |   | |    INHIBIT/ENABLE DOWNLINK
+              +----------------+   +---+ |   | |     +-------------------+
+              |                |       | v   | v     |                   |
+              |   +-------+    |     +-----------+   |       +--------+  |
+              +-->|       |    |     |           |   |       |        |--+
+SCS MODES-------->|       |    +-----|           |<--+       |        |-->DSKYs
+TELEMETRY-------->|       |          |           |           |        |-->ISS MODES & CONTROL
+DSKYs (CREW)----->|       | DATA IN  |  CENTRAL  | DATA OUT  |        |-->OSS MODES & CONTROL
+ISS MODES-------->| INPUT |--------->| PROCESSOR |---------->| OUTPUT |-->SPS ENGINE
+OSS ANGLES------->|       |          |           |           |        |-->TELEMETRY
+MESC (EVENTS)---->|       |          |           |           |        |-->CDUs
+S-IVB INST UNIT-->|       |          |           |           |        |-->PSA REFERENCE
+              +-->|       |          |           |           |        |
+              |   +-------+          +-----------+           +--------+
+              |
+              |  TIMING (REAL TIME)
+              +------------------------------+
+                                             |
+                       TO ALL SECTIONS       | TO ALL SECTIONS
+                               ^             |  ^
+                               |             |  |
+                               |             |  |
+                           +--------+    +--------+
+                           |        |    |        |
+                           |        |    |        |
+                +28 VDC,   | POWER  |    | TIMING |
+                MAIN DC -->| SUPPLY |    |        |
+                 BUSES     |        |    |        |
+                           |        |    |        |                 SM-2A-827
+                           +--------+    +--------+
+
