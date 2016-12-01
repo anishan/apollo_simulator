@@ -13,8 +13,10 @@ module Data_memory
   //timing pulse is when we want to write to memory if we're addressing the erasable and are enabled by control unit
   always @(posedge tp) begin // Update array on posedge timing pulse
     if ((regWE) && (Addr[11:10] == 2'b00)) begin // Check for write enable
-      mem[Addr] = DataIn;
-      $writememb("fullMem.dat", mem); // Write to file
+        if (Addr != 12'b000000000111) begin //cannot be writing to zero reg 
+            mem[Addr] = DataIn;
+            $writememb("fullMem.dat", mem); // Write to file
+        end
     end
     else if (regWE) begin
         $display("You are trying to write to fixed memory. Error.");
