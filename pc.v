@@ -2,19 +2,20 @@ module pc
 (
 	input enable,
     input clk,
-	input jumpSelect, // set high if we want to jump
-    input [11:0] jumpAddr,
+	//input jumpSelect, // set high if we want to jump
+    //input [11:0] jumpAddr,
     output reg [11:0] PCaddr = 12'b000000000000
 );
 
 always @(posedge clk) begin
 	if (enable) begin
-		if (jumpSelect) begin
-            PCaddr <= jumpAddr;
-		end
-		else begin
-			PCaddr <= PCaddr+1;
-		end
+		PCaddr <= PCaddr+1;
+		//if (jumpSelect) begin
+        //    PCaddr <= jumpAddr;
+		//end
+		//else begin
+		//	PCaddr <= PCaddr+1;
+		//end
 	end
 end
 endmodule

@@ -1,5 +1,6 @@
 module InstrFetchUnit
 (
+input tp,
 input [14:0] instr,
 output reg [2:0] OpCode,
 output reg [1:0] QC,
@@ -8,7 +9,7 @@ output reg [11:0] Addr12,
 output reg [9:0] Addr10
 );
 
-always @(instr) begin
+always @(posedge tp) begin
 	assign OpCode = instr[14:12];
 	assign QC = instr[11:10];
 	assign PC = instr[9];
