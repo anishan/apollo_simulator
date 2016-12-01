@@ -4,43 +4,69 @@ module pc
     input clk,
 	input jumpSelect, // set high if we want to jump
     input [11:0] jumpAddr,
-    output [11:0] PCaddr
+    output reg [11:0] PCaddr = 12'b000000000000
 );
-	reg [11:0] pc = 12'b000000000000;
-	wire [11:0] muxOut;
-	mux12to1_1bit muxie(pc, jumpAddr, jumpSelect, muxOut);
-	dff12 dffie(enable, clk, muxOut, PCaddr);
-endmodule
 
-
-module dff12 // might be 12 bits
-(
-	input enable,
-    input       clk,
-    input [11:0] d,
-    output reg [11:0] q
-);
-    always @(posedge clk) begin
-		if (enable) begin
-            q = d;
+always @(posedge clk) begin
+	if (enable) begin
+		if (jumpSelect) begin
+            PCaddr <= jumpAddr;
 		end
-    end
+		else begin
+			PCaddr <= PCaddr+1;
+		end
+	end
+end
 endmodule
 
-module mux12to1_1bit // We think its 12 bits for an address, but no clue
-(
-	input [11:0] input1,
-    input [11:0] input2,
-    input select,
-    output reg [11:0] q
-);
+module quicktest();
+
+reg enable;
+reg clk;
+reg jumpSelect; // set high if we want to jump
+reg [11:0] jumpAddr;
+wire [11:0] PCaddr;
+
+reg dutpassed;
+
+pc pcie(enable, clk, jumpSelect, jumpAddr, PCaddr);
+
+// Generate clock (50MHz)
+initial clk=0;
+always #10 clk=!clk;
 
 initial begin
-	if (select) begin
-    	assign q = input1;
-    end
-	else begin
-		assign q = input2;
-	end
+
+$dumpfile("pc.vcd");
+$dumpvars();
+
+dutpassed = 1;
+enable = 1;
+jumpAddr = 12'b101010101010;
+jumpSelect = 0;
+
+#20
+
+if (PCaddr != 12'b000000000001) begin
+	$display("pc: %b", PCaddr);
+	dutpassed = 0;
+end
+
+#20
+
+if (PCaddr != 12'b000000000010) begin
+	dutpassed = 0;
+end
+
+jumpSelect = 1;
+#20
+if (PCaddr != jumpAddr) begin
+	dutpassed = 0;
+end
+
+
+$display("dut passed: %b", dutpassed);
+$finish;
+
 end
 endmodule
