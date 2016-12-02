@@ -22,7 +22,7 @@ wire [14:0] DataIn; //set with ctrl
 wire [14:0]  DataOut;
 wire memtp;
 
-reg extracode;
+reg extracode_flag_flag;
 reg [15:0] PC; //program counter
 reg [2:0] OpCode;
 reg [1:0] QC;
@@ -30,6 +30,9 @@ reg Peripheral_C; //PERIPHERAL CODE
 reg [11:0] Addr12;
 reg [9:0] Addr10;
 reg [14:0] instr;
+reg overflow_flag;
+reg [14:0] G_reg;
+reg S2; //the copy of the most sig bit for overflow checks
 
 // Encodings for Operations
 localparam tc = 3'b000;
@@ -47,9 +50,9 @@ localparam  zAddr = 12'b000000000010;
 //create timing pulses
 sequence_generator sequencegen(clk, tp1, tp2, tp3, tp4, tp5, tp6, tp7);
 //have tp1 and tp2 together for when memory should run
-and andgate1(memtp, tp1, tp2); // and together all timing pulses where mem should run
+and andgate1(memtp, tp1, tp2, tp5, tp6,tp7); // and together all timing pulses where mem should run
 //memory
-Data_memory memory(memWE, memtp, MemAddr, DataIn, DataOut);
+Data_memory memory(memWE, memtp, clk, MemAddr, DataIn, DataOut);
 //decode the instruction just read from memory
 InstrFetchUnit instrFetch(tp4, instr, OpCode, QC, PC, Addr12, Addr10);
 
@@ -107,40 +110,119 @@ always @(posedge clk) begin
 
        ccsanddv: begin
             //count, compare and skip or dv
-            //check extracode
-            if (extracode) begin
+            //check extracode_flag
+            if (extracode_flag_flag) begin
                 //then DV
             end
             else begin
                 //then CCS
             end
        end
+
        index: begin
             //extra should be high.
        end
        xch: begin
             //exchange
+            // if (tp5 == 1) begin
+            //     memWE <=0;
+            //     MemAddr <= {2'b00, Addr10};  //always EXCHANGE with erasable memory
+            //     G_reg <= DataOut;
+            // end
+            // if (tp6 == 1)begin
+            //     memWE <=1;
+            //     MemAddr <= aAddr;
+            // end
+
        end
        cs: begin
         //clear and subtract
        end
        ts: begin
             // transfer to storage
+
+            //look at overflow, save into reg A if there is some, then clear overflow
        end
        adandsu: begin
-            if (extracode) begin
+            if (extracode_flag_flag) begin
            //then subtract
+
+           if (tp5 == 1) begin
+               //save mem[addr] given to reg G
+               memWE <=0;
+               MemAddr <= Addr12;
+               G_reg <= DataOut;
+           end
+
+           if (tp6 = 1) begin
+               //read what is in reg A
+               memWE <= 1; //
+               MemAddr <= aAddr;
+               S2 <= DataOut[15]; //keep a duplicate of most sig for overflow
+               G_reg <= DataOut - G_reg; //reg A's contents -reg G's contents
+           end
+
+          if (tp7 == 1) begin
+               //save to reg A.
+               memWE <=1;
+               MemAddr <= aAddr;
+               DataIn <= G_reg;
+          end
+
             end
-                else begin
+            else begin
            //then add
+            if (tp5 == 1) begin
+                //save mem[addr] given to reg G
+                memWE <=0;
+                MemAddr <= Addr12;
+                G_reg <= DataOut;
             end
+
+            if (tp6 = 1) begin
+                //read what is in reg A
+                memWE <= 0;
+                MemAddr <= aAddr;
+                S2 <= DataOut[15]; //keep a duplicate of most sig for overflow
+                G_reg <= G_reg + DataOut; //reg G's contents + reg A's contents
+            end
+
+           if (tp7 == 1) begin
+                //save to reg A.
+                memWE <=1;
+                MemAddr <= aAddr;
+                DataIn <= G_reg;
+           end
+        end
        end
+
        maskandmp: begin
-            if (extracode) begin
+            if (extracode_flag) begin
             //then multiply
             end
             else begin
             //then mask
+            if (tp5 == 1) begin
+                //save mem[addr] given to reg G
+                memWE <=0;
+                MemAddr <= Addr12;
+                G_reg <= DataOut;
+            end
+
+            if (tp6 = 1) begin
+                //read what is in reg A
+                memWE <= 0;
+                MemAddr <= aAddr;
+                G_reg <= (G_reg & DataOut); //reg G's contents AND reg A's contents
+            end
+            if (tp7 == 1) begin
+                 //save to reg A.
+                 memWE <=1;
+                 MemAddr <= aAddr;
+                 DataIn <= G_reg;
+            end
+
+
             end
        end
     endcase
