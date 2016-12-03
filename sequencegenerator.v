@@ -9,7 +9,8 @@ module sequence_generator
     output reg tp4,
     output reg tp5,
     output reg tp6,
-    output reg tp7
+    output reg tp7,
+	output reg tp8
     );
     reg [3:0] counter=0;
 
@@ -23,6 +24,7 @@ module sequence_generator
             tp5 <= 0;
             tp6 <= 0;
             tp7 <= 0;
+			tp8 <= 0;
         end
         if (counter == 1)begin
             tp1 <= 0;
@@ -32,6 +34,7 @@ module sequence_generator
             tp5 <= 0;
             tp6 <= 0;
             tp7 <= 0;
+			tp8 <= 0;
         end
         if (counter == 2)begin
             tp1 <= 0;
@@ -41,6 +44,7 @@ module sequence_generator
             tp5 <= 0;
             tp6 <= 0;
             tp7 <= 0;
+			tp8 <= 0;
         end
         if (counter == 3)begin
             tp1 <= 0;
@@ -50,6 +54,7 @@ module sequence_generator
             tp5 <= 0;
             tp6 <= 0;
             tp7 <= 0;
+			tp8 <= 0;
         end
         if (counter == 4)begin
             tp1 <= 0;
@@ -59,6 +64,7 @@ module sequence_generator
             tp5 <= 1;
             tp6 <= 0;
             tp7 <= 0;
+			tp8 <= 0;
         end
         if (counter == 5)begin
             tp1 <= 0;
@@ -68,6 +74,7 @@ module sequence_generator
             tp5 <= 0;
             tp6 <= 1;
             tp7 <= 0;
+			tp8 <= 0;
         end
         if (counter == 6)begin
             tp1 <= 0;
@@ -77,6 +84,7 @@ module sequence_generator
             tp5 <= 0;
             tp6 <= 0;
             tp7 <= 1;
+			tp8 <= 0;
         end
     end
 
@@ -93,18 +101,19 @@ wire tp4;
 wire tp5;
 wire tp6;
 wire tp7;
+wire tp8;
 
 initial clk= 0;
 always #10 clk= !(clk);
 
-sequence_generator seq(clk, tp1, tp2, tp3, tp4, tp5, tp6, tp7);
+sequence_generator seq(clk, tp1, tp2, tp3, tp4, tp5, tp6, tp7, tp8);
 
 initial begin
 
 $dumpfile("seq.vcd");
 $dumpvars();
 #500
-$display("Check GTKWAVE for passing. Should see cascade of 1's from tp1 to tp7"); 
+$display("Check GTKWAVE for passing. Should see cascade of 1's from tp1 to tp8"); 
 $finish;
 
 end
