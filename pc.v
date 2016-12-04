@@ -20,7 +20,7 @@ always @(posedge clk) begin
 end
 endmodule
 
-module quicktest();
+module quicktestPC();
 
 reg enable;
 reg clk;
