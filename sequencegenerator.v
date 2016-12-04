@@ -1,5 +1,7 @@
 //sequence generator
 //5 pulses
+`timescale 1 ns / 1 ps
+
 module sequence_generator
 (
     input clk,
@@ -81,7 +83,7 @@ initial begin
 $dumpfile("seq.vcd");
 $dumpvars();
 #500
-$display("Check GTKWAVE for passing. Should see cascade of 1's from tp1 to tp9"); 
+$display("Check GTKWAVE for passing. Should see cascade of 1's from tp1 to tp9");
 $finish;
 
 end
