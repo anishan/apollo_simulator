@@ -1,3 +1,4 @@
+`timescale 1 ns / 1 ps
 module pc
 (
 	input enable,
@@ -30,7 +31,7 @@ wire [11:0] PCaddr;
 
 reg dutpassed;
 
-pc pcie(enable, clk, jumpSelect, jumpAddr, PCaddr);
+pc pcie(enable, clk, PCaddr);
 
 // Generate clock (50MHz)
 initial clk=0;
