@@ -39,8 +39,8 @@ always #10 clk=!clk;
 
 initial begin
 
-$dumpfile("pc.vcd");
-$dumpvars();
+// $dumpfile("pc.vcd");
+// $dumpvars();
 
 dutpassed = 1;
 enable = 1;
@@ -67,7 +67,7 @@ if (PCaddr != jumpAddr) begin
 end
 
 
-$display("dut passed: %b", dutpassed);
+$display("PC dut passed: %b", dutpassed);
 $finish;
 
 end

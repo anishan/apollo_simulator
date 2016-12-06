@@ -44,7 +44,7 @@ else begin
 	dutpassed = 1;
 end
 
-$display("dut passed: %b", dutpassed);
+$display("IFETCH dut passed: %b", dutpassed);
 
 
 end
