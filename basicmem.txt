@@ -1,0 +1,5 @@
+//basic instruction testing
+//replace first lines of fixed memory with these instructions 
+
+//add reg A (preloaded with 2) with Mem[5] (preloaded with 4)
+110 000 000 000 101 //opcode 6, with 12 bit address of "5" 
