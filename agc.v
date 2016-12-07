@@ -27,6 +27,7 @@ wire memtp;
 reg [29:0] temp_computation;
 reg [29:0] temp2_computation;
 reg [29:0] temp3_computation;
+reg [14:0] A_A_rod;
 
 reg extracode_flag;
 reg [14:0] PC; //program counter
@@ -148,6 +149,7 @@ always @(posedge clk) begin
                 if (tp7) begin // load A into temp computation
                     memWE <= 0;
                     MemAddr <= aAddr;
+                    A_A_rod <= DataOut;
                     temp_computation <= {DataOut, 15'b000000000000000};
                 end
                 if (tp8) begin // load L into temp computation
@@ -166,6 +168,7 @@ always @(posedge clk) begin
 					memWE <= 1;
 					MemAddr <= aAddr;
 					DataIn <= temp2_computation[29:15];
+                    A_A_rod <= DataIn;
 					S2 <= temp2_computation[29];
                 end
 				if (tp10) begin
@@ -185,7 +188,7 @@ always @(posedge clk) begin
                 extracode_flag <= 0;
                 if (tp6 ) begin // read from mem
                     memWE <= 0;
-                    MemAddr <= {2'b00, Addr10}; 
+                    MemAddr <= {2'b00, Addr10};
 					G_reg <= DataOut;
                 end
                 if (tp7) begin // find DABS, store in temp_computation[14:0]
@@ -208,6 +211,7 @@ always @(posedge clk) begin
 					memWE <= 1;
 					MemAddr <= aAddr;
 					DataIn <= temp_computation[14:0];
+                    A_A_rod <= DataIn;
 					S2 <= G_reg[14];
                 end
                 if (tp8) begin
@@ -255,6 +259,7 @@ always @(posedge clk) begin
             if (tp7 == 1)begin
                 memWE <=0;
                 MemAddr <= aAddr;
+                A_A_rod<= DataOut;
 				temp_computation[13:0] <= DataOut[13:0];
 				temp_computation[14] <= S2;
             end
@@ -263,6 +268,7 @@ always @(posedge clk) begin
                 MemAddr <= aAddr;
                 DataIn <= G_reg;
 				S2 <= G_reg[14];
+                A_A_rod <= DataIn;
             end
 			if (tp9 == 1)begin
                 memWE <=1;
@@ -276,14 +282,15 @@ always @(posedge clk) begin
 			if (tp6) begin
 				memWE <= 0;
 				MemAddr <= aAddr;
+                A_A_rod <= DataOut;
 				G_reg[13:0] <= DataOut[13:0];
 				G_reg[14] <= S2;
-			end	
+			end
 			if (tp7) begin
 				memWE <= 1;
 				MemAddr <= {2'b00, Addr10};
-				DataIn <= G_reg;	
-			end	
+				DataIn <= G_reg;
+			end
             //look at overflow, save into reg A if there is some, then clear overflow
 			if (tp8) begin
 				if (overflow_flag) begin
@@ -291,9 +298,11 @@ always @(posedge clk) begin
 					MemAddr <= aAddr;
 					if (S2 == 0) begin //positive
 						DataIn <= 15'b000000000000001;
+                        A_A_rod <= DataIn;
 					end
 					if (S2 == 1) begin //positive
 						DataIn <= 15'b111111111111110;
+                        A_A_rod <= DataIn;
 					end
 				end
 			end
@@ -324,10 +333,11 @@ always @(posedge clk) begin
                 memWE <= 1;
                 DataIn <= G_reg;
 				S2 <= G_reg[14];
+                A_A_rod <= DataIn;
             end
 
        end
-       
+
        adandsu: begin
             if (extracode_flag) begin
            //then subtract
@@ -343,6 +353,7 @@ always @(posedge clk) begin
                //read what is in reg A
                memWE <= 0; //
                MemAddr <= aAddr;
+               A_A_rod <= DataOut;
                S2 <= DataOut[14]; //keep a duplicate of most sig for overflow
                G_reg <= DataOut - G_reg; //reg A's contents -reg G's contents
 			   if (S2 != G_reg[14]) begin // there has been overflow
@@ -358,7 +369,7 @@ always @(posedge clk) begin
                memWE <=1;
                MemAddr <= aAddr;
                DataIn <= G_reg;
-			   //S2 <= G_reg[14];
+               A_A_rod <= DataIn;
                extracode_flag <= 0;
           end
 
@@ -376,6 +387,7 @@ always @(posedge clk) begin
                 //read what is in reg A
                 memWE <= 0;
                 MemAddr <= aAddr;
+                A_A_rod <= DataOut;
                 S2 <= DataOut[14]; //keep a duplicate of most sig for overflow
                 G_reg <= G_reg + DataOut; //reg G's contents + reg A's contents
 				if (S2 != G_reg[14]) begin // there has been overflow
@@ -391,6 +403,7 @@ always @(posedge clk) begin
                 memWE <=1;
                 MemAddr <= aAddr;
                 DataIn <= G_reg;
+                A_A_rod <= DataIn;
                 extracode_flag <= 0;
            end
         end
@@ -408,6 +421,7 @@ always @(posedge clk) begin
                 if (tp7) begin
                     MemAddr <= aAddr;
                     memWE <=0;
+                    A_A_rod<= DataOut;
                     //overflow correction
                     if (DataOut[14] == G_reg[14]) begin //checking the sign of both operands
                         S2 <= 0; //sign of result is positive (pos*pos = pos, neg*neg = pos)
@@ -421,7 +435,8 @@ always @(posedge clk) begin
                     memWE <=1;
                     MemAddr <= aAddr;
                     DataIn <= {S2, temp_computation[28:16]}; //save higher bits in A with overflow correction
-					
+                    A_A_rod <= DataIn;
+
                 end
                 if (tp9) begin
                     memWE <=1;
@@ -448,6 +463,7 @@ always @(posedge clk) begin
                 //read what is in reg A
                 memWE <= 0;
                 MemAddr <= aAddr;
+                A_A_rod <= DataOut;
                 G_reg <= (G_reg & DataOut); //reg G's contents AND reg A's contents
 				if (S2 != G_reg[14]) begin // there has been overflow
 				  overflow_flag <= 1;
@@ -461,6 +477,7 @@ always @(posedge clk) begin
                  memWE <=1;
                  MemAddr <= aAddr;
                  DataIn <= G_reg;
+                 A_A_rod <= DataIn;
                  extracode_flag <= 0;
             end
             end
