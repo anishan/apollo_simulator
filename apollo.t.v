@@ -8,7 +8,7 @@ reg clk;
     initial clk=0;
 	always #10 clk=!clk;
 
-apolloGuidanceComputer ctrl_unit(clk);
+ctrl_unit apolloGuidanceComputer(clk);
 
 initial begin
  $dumpfile("apollo.vcd");

@@ -1,7 +1,6 @@
 //control unit
 `timescale 1 ns / 1 ps
 `include "sequencegenerator.v"
-`include "pc.v"
 `include "memory_agc.v"
 `include "instrFetch.v"
 
@@ -30,7 +29,7 @@ reg [29:0] temp2_computation;
 reg [29:0] temp3_computation;
 
 reg extracode_flag;
-reg [15:0] PC; //program counter
+reg [14:0] PC; //program counter
 wire [2:0] OpCode;
 wire [1:0] QC;
 wire Peripheral_C; //PERIPHERAL CODE
@@ -65,7 +64,7 @@ and andgate1(memtp, tp1, tp2, tp5, tp6,tp7, tp8, tp9); // and together all timin
 //memory
 Data_memory memory(memWE, memtp, MemAddr, DataIn, DataOut);
 //decode the instruction just read from memory
-InstrFetchUnit instrFetch(tp4, instr, OpCode, QC, Peripheral_C, Addr12, Addr10);
+InstrFetchUnit instrFetch(clk, tp5, instr, OpCode, QC, Peripheral_C, Addr12, Addr10);
 
 //timing pulses
 //tp 1: fetch pc from z reg
@@ -79,16 +78,21 @@ InstrFetchUnit instrFetch(tp4, instr, OpCode, QC, Peripheral_C, Addr12, Addr10);
 //tp 9:
 
 always @(posedge clk) begin
+	if ((OpCode == 3'b111) && (Addr12 == 12'b111111111111)) begin
+		$display("before finish");
+		$finish;
+	end
     if (tp1 == 1)begin //read what PC is from Z reg
         memWE <=0;
         MemAddr <= zAddr;
         PC <= DataOut;
     end
     if (tp2 == 1) begin//write PC + 1 into Z's reg
-        PC <= PC+1;
+		PC <= DataOut;
+        PC = PC+1;
         memWE <= 1;
         MemAddr <= zAddr;
-        DataIn <= PC;
+        DataIn = PC;
     end
     if (tp3 == 1) begin  //set address to the PC
         MemAddr <= PC;
@@ -97,6 +101,7 @@ always @(posedge clk) begin
     end
 
     if (tp4 == 1) begin
+		instr <= DataOut;
         memWE <= 0;
         //tp 4 is directly wired to instruction fetch unit (decoding)
     end
