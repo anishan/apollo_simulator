@@ -63,7 +63,7 @@ sequence_generator sequencegen(clk, tp1, tp2, tp3, tp4, tp5, tp6, tp7, tp8, tp9,
 //have tp1 and tp2 together for when memory should run
 and andgate1(memtp, tp1, tp2, tp5, tp6,tp7, tp8, tp9); // and together all timing pulses where mem should run
 //memory
-Data_memory memory(memWE, memtp, MemAddr, DataIn, DataOut);
+Data_memory memory(memWE, clk, MemAddr, DataIn, DataOut);
 //decode the instruction just read from memory
 InstrFetchUnit instrFetch(clk, tp5, instr, OpCode, QC, Peripheral_C, Addr12, Addr10);
 
@@ -90,12 +90,14 @@ always @(posedge clk) begin
     end
     if (tp2 == 1) begin//write PC + 1 into Z's reg
 		PC <= DataOut;
-        PC = PC+1;
+        //PC <= PC+1;
         memWE <= 1;
         MemAddr <= zAddr;
-        DataIn = PC;
+        //DataIn = PC;
     end
     if (tp3 == 1) begin  //set address to the PC
+		PC <= PC+1;
+		DataIn <= PC;
         MemAddr <= PC;
         memWE <= 0;
         instr <= DataOut;
@@ -380,32 +382,37 @@ always @(posedge clk) begin
                 //save mem[addr] given to reg G
                 memWE <=0;
                 MemAddr <= Addr12;
-                G_reg <= DataOut;
+                //G_reg <= DataOut;
             end
 
             if (tp7 == 1) begin
                 //read what is in reg A
+				G_reg = DataOut;
                 memWE <= 0;
                 MemAddr <= aAddr;
                 A_A_rod <= DataOut;
                 S2 <= DataOut[14]; //keep a duplicate of most sig for overflow
-                G_reg <= G_reg + DataOut; //reg G's contents + reg A's contents
+                
+            end
+
+           if (tp8 == 1) begin
+				G_reg <= G_reg + DataOut; //reg G's contents + reg A's contents
 				if (S2 != G_reg[14]) begin // there has been overflow
 				  overflow_flag <= 1;
 			   end
 			   else begin
 				  overflow_flag <= 0;
 			   end
-            end
-
-           if (tp8 == 1) begin
                 //save to reg A.
                 memWE <=1;
                 MemAddr <= aAddr;
-                DataIn <= G_reg;
-                A_A_rod <= DataIn;
-                extracode_flag <= 0;
            end
+
+			if (tp9) begin
+				DataIn <= G_reg;
+                A_A_rod <= G_reg;
+                extracode_flag <= 0;
+			end
         end
        end
 
