@@ -137,13 +137,13 @@ always @(posedge clk) begin
 	   tc: begin
            // transfer control
            //have it write the jump address to Z on second tp while Q is set to Z
-           if (tp6 == 1) begin
+           if ((Addr12 != 6) && (tp6 == 1)) begin
                 //save Z to Q
                 memWE <=1;
                 MemAddr <= qAddr;
                 DataIn <= PC;
            end
-           if (tp7 == 1) begin
+           if ((Addr12 != 6) && (tp7 == 1)) begin
                 //write the jump address to reg Z
                 memWE <=1;
                 MemAddr <= zAddr;
@@ -368,41 +368,90 @@ always @(posedge clk) begin
            //then subtract
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--SU--//
 
-           if (tp6 == 1) begin
-               //save mem[addr] given to reg G
-               memWE <=0;
-               MemAddr <= Addr12;
-               G_reg <= DataOut;
-           end
 
-           if (tp7 == 1) begin
-               //read what is in reg A
-               memWE <= 0; //
-               MemAddr <= aAddr;
-               A_A_rod <= DataOut;
-               S2 <= DataOut[14]; //keep a duplicate of most sig for overflow
-               G_reg <= DataOut - G_reg; //reg A's contents -reg G's contents
-			   if (S2 != G_reg[14]) begin // there has been overflow
-				  overflow_flag <= 1;
-			   end
-			   else begin
-			      overflow_flag <= 0;
-			   end
-           end
+			if (tp6 == 1) begin
+                //save mem[addr] given to reg G
+                memWE <=0;
+                MemAddr <= Addr12;
+                G_reg <= DataOut;
+            end
 
-          if (tp8 == 1) begin
-               //save to reg A.
-               memWE <=1;
-               MemAddr <= aAddr;
-               DataIn <= G_reg;
-               A_A_rod <= DataIn;
-               extracode_flag <= 0;
-          end
+            if (tp7 == 1) begin
+                //read what is in reg A
+				//G_reg = DataOut;
+                memWE <= 0;
+                MemAddr <= aAddr;
+                A_A_rod <= DataOut;
+                S2 <= DataOut[14]; //keep a duplicate of most sig for overflow
 
             end
-            else begin
+
+           if (tp8 == 1) begin
+				if (!clk_flag) begin
+					G_reg <= G_reg - DataOut; //reg G's contents + reg A's contents
+					if (S2 != G_reg[14]) begin // there has been overflow
+					  overflow_flag <= 1;
+				   end
+				   else begin
+					  overflow_flag <= 0;
+				   end
+					clk_flag <=1;
+				end
+                //save to reg A.
+				else begin
+		            memWE <=1;
+		            MemAddr <= aAddr;
+					clk_flag <=0;
+				end
+           end
+
+			if (tp9) begin
+				DataIn <= G_reg;
+                A_A_rod <= G_reg;
+                extracode_flag <= 0;
+			end
+			if (tp10) begin
+				memWE <= 0;
+			end
+        end
+
+           //if (tp6 == 1) begin
+           //    //save mem[addr] given to reg G
+           //    memWE <=0;
+           //    MemAddr <= Addr12;
+           //    G_reg <= DataOut;
+           //end
+
+           //if (tp7 == 1) begin
+           //    //read what is in reg A
+           //    memWE <= 0; //
+           //    MemAddr <= aAddr;
+           //    A_A_rod <= DataOut;
+           //    S2 <= DataOut[14]; //keep a duplicate of most sig for overflow
+           //    G_reg <= DataOut - G_reg; //reg A's contents -reg G's contents
+		//	   if (S2 != G_reg[14]) begin // there has been overflow
+		//		  overflow_flag <= 1;
+			//   end
+			//   else begin
+			//      overflow_flag <= 0;
+		//	   end
+         //  end
+
+          //if (tp8 == 1) begin
+          //     //save to reg A.
+          //     memWE <=1;
+          //     MemAddr <= aAddr;
+          //    DataIn <= G_reg;
+          //     A_A_rod <= DataIn;
+          //     extracode_flag <= 0;
+          //end
+
+            //end
+            //else begin
+
            //then add
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--AD--//
+			else begin
             if (tp6 == 1) begin
                 //save mem[addr] given to reg G
                 memWE <=0;
