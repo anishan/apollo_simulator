@@ -19,6 +19,7 @@ wire tp7;
 wire tp8;
 wire tp9;
 wire tp10;
+wire tp11;
 reg memWE; //set with ctrl
 reg [11:0] MemAddr; //set with ctrl
 reg [14:0] DataIn; //set with ctrl
@@ -42,6 +43,7 @@ reg [14:0] G_reg;
 reg S2; //the copy of the most sig bit for overflow checks
 reg hiddenreg; //for index
 reg index_flag; //to know the next instruction needs + the hidden reg
+reg clk_flag =0; // Temp, I hope hope hope
 
 // Encodings for Operations
 localparam tc = 3'b000;
@@ -59,7 +61,7 @@ localparam  zAddr = 12'b000000000010;
 localparam  lAddr = 12'b000000000011;
 
 //create timing pulses
-sequence_generator sequencegen(clk, tp1, tp2, tp3, tp4, tp5, tp6, tp7, tp8, tp9, tp10);
+sequence_generator sequencegen(clk, tp1, tp2, tp3, tp4, tp5, tp6, tp7, tp8, tp9, tp10, tp11);
 //have tp1 and tp2 together for when memory should run
 and andgate1(memtp, tp1, tp2, tp5, tp6,tp7, tp8, tp9); // and together all timing pulses where mem should run
 //memory
@@ -84,26 +86,40 @@ always @(posedge clk) begin
 		$finish;
 	end
     if (tp1 == 1)begin //read what PC is from Z reg
-        memWE <=0;
-        MemAddr <= zAddr;
-        PC <= DataOut;
+		if (!clk_flag) begin
+		    memWE <=0;
+		    MemAddr <= zAddr;
+			clk_flag <= 1;
+		end
+		else begin
+        	PC <= DataOut;
+			clk_flag <= 0;
+		end
     end
     if (tp2 == 1) begin//write PC + 1 into Z's reg
 		PC <= DataOut;
         //PC <= PC+1;
-        memWE <= 1;
+        memWE <= 0;
         MemAddr <= zAddr;
         //DataIn = PC;
     end
     if (tp3 == 1) begin  //set address to the PC
-		PC <= PC+1;
-		DataIn <= PC;
-        MemAddr <= PC;
-        memWE <= 0;
-        instr <= DataOut;
+		if (!clk_flag) begin
+			memWE <= 1;
+			PC <= PC+1;
+			DataIn <= PC + 1;
+		    MemAddr <= zAddr;
+		    instr <= DataOut;
+			clk_flag <= 1;
+		end
+		else begin
+			memWE <= 0;
+			clk_flag <= 0;
+		end
     end
 
     if (tp4 == 1) begin
+		MemAddr <= PC-1;
 		instr <= DataOut;
         memWE <= 0;
         //tp 4 is directly wired to instruction fetch unit (decoding)
@@ -382,12 +398,12 @@ always @(posedge clk) begin
                 //save mem[addr] given to reg G
                 memWE <=0;
                 MemAddr <= Addr12;
-                //G_reg <= DataOut;
+                G_reg <= DataOut;
             end
 
             if (tp7 == 1) begin
                 //read what is in reg A
-				G_reg = DataOut;
+				//G_reg = DataOut;
                 memWE <= 0;
                 MemAddr <= aAddr;
                 A_A_rod <= DataOut;
@@ -396,22 +412,31 @@ always @(posedge clk) begin
             end
 
            if (tp8 == 1) begin
-				G_reg <= G_reg + DataOut; //reg G's contents + reg A's contents
-				if (S2 != G_reg[14]) begin // there has been overflow
-				  overflow_flag <= 1;
-			   end
-			   else begin
-				  overflow_flag <= 0;
-			   end
+				if (!clk_flag) begin
+					G_reg <= G_reg + DataOut; //reg G's contents + reg A's contents
+					if (S2 != G_reg[14]) begin // there has been overflow
+					  overflow_flag <= 1;
+				   end
+				   else begin
+					  overflow_flag <= 0;
+				   end
+					clk_flag <=1;
+				end
                 //save to reg A.
-                memWE <=1;
-                MemAddr <= aAddr;
+				else begin
+		            memWE <=1;
+		            MemAddr <= aAddr;
+					clk_flag <=0;
+				end
            end
 
 			if (tp9) begin
 				DataIn <= G_reg;
                 A_A_rod <= G_reg;
                 extracode_flag <= 0;
+			end
+			if (tp10) begin
+				memWE <= 0;
 			end
         end
        end

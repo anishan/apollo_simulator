@@ -6,7 +6,7 @@ module Data_memory
   input regWE, clk, //timing pulse
   input[11:0] Addr,
   input[14:0] DataIn,
-  output[14:0]  DataOut
+  output reg [14:0]  DataOut
 );
 
   reg [14:0] mem[0:2046]; // Generate array to store data from file
@@ -22,6 +22,9 @@ module Data_memory
     else if (regWE) begin
         $display("You are trying to write to fixed memory. Error.");
     end
+	
+	DataOut = mem[Addr]; // Ouput data at address Addr
+	
   end
 
 
@@ -30,5 +33,5 @@ module Data_memory
       $readmemb("fullMem.dat", mem); // Initially read file
   end
 
-      assign DataOut = mem[Addr]; // Ouput data at address Addr
+      //assign DataOut = mem[Addr]; // Ouput data at address Addr
 endmodule

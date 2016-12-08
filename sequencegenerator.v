@@ -17,10 +17,10 @@ module sequence_generator
     output reg tp10,
     output reg tp11
     );
-    reg [3:0] counter=0;
+    reg [5:0] counter=0;
 
     always @(negedge clk) begin
-        counter <= (counter +1 )%10 ;
+        counter <= (counter +1 )%22;
         if (counter == 0)begin
 			tp11 <= 0;
             tp1 <= 1;

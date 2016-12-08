@@ -15,7 +15,7 @@ initial begin
  $dumpvars();
 
 
-#50000 $finish;
+#2000 $finish;
 //the registers are too nested to be able to reference them and check their contents with a dutpassed.
 end
 
