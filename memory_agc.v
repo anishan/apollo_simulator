@@ -18,6 +18,9 @@ module Data_memory
             mem[Addr] = DataIn;
             $writememb("fullMem.dat", mem); // Write to file
         end
+		else begin
+			$display("You are trying to write to the zero reg (Mem[7])");
+		end
     end
     else if (regWE) begin
         $display("You are trying to write to fixed memory. Error.");
