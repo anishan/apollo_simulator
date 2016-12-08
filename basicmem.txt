@@ -3,8 +3,15 @@
 
 //add reg A (preloaded with 6) with Mem[5] (preloaded with 4)
 110 000 000 000 101 //add opcode 6, with 12 bit address of "5". A reg holds 10 
-110 000 000 000 101 //add opcode 6, with 12 bit address of "5"  A reg holds 14 
+000 010 000 000 011    //tc to jump to address X and skip the 2nd add instruction. 
+110 000 000 000 101 //add opcode 6, with 12 bit address of "5"  A reg holds 14 but we skip this! so A reg still holds 10.  
 000 000 000 000 110 //tc to 6 so we can set extracode flag high
-110 000 000 000 101 //subtract opcode 6 (with extracode high), with 12 bit address of "5". A reg holds 10 again. 
-101 100 000 000 110 // transfer to storage, opcode 5 quarter 4, write A (holding 10) into Mem[6]
+110 000 000 000 101 //subtract opcode 6 (with extracode high), with 12 bit address of "5". A reg holds 6 again.  
+101 100 000 001 000 // transfer to storage, opcode 5 quarter 4, write A (holding 10) into Mem[8] 		NOTE MEM[7] IS THE ZERO REGISTER
+100 000 000 001 000 //clear and subtract the contents of Mem[8](which is = 6) so 1's complement of 6 is in A register 
+101 110 000 000 101 // exchange A with Mem[5], so we see "6" in A register and 1's complement of 6 is in Mem[5]
+110 000 000 001 000 //A holds 4, so add Mem[8] which holds 6, and save 10 to reg A. 
+111 000 000 001 000 // MASK reg A holding 10 with Mem[8] holding 6. Our expected result is 2 bc 1010 & 0110 = 0010
+
+
 finish instruction

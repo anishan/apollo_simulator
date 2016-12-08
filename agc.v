@@ -388,7 +388,7 @@ always @(posedge clk) begin
 
            if (tp8 == 1) begin
 				if (!clk_flag) begin
-					G_reg <= G_reg - DataOut; //reg G's contents + reg A's contents
+					G_reg <= DataOut - G_reg; //reg G's contents + reg A's contents
 					if (S2 != G_reg[14]) begin // there has been overflow
 					  overflow_flag <= 1;
 				   end
