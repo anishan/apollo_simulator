@@ -1,5 +1,10 @@
 //basic instruction testing
 //replace first lines of fixed memory with these instructions 
 
-//add reg A (preloaded with 2) with Mem[5] (preloaded with 4)
-110 000 000 000 101 //opcode 6, with 12 bit address of "5" 
+//add reg A (preloaded with 6) with Mem[5] (preloaded with 4)
+110 000 000 000 101 //add opcode 6, with 12 bit address of "5". A reg holds 10 
+110 000 000 000 101 //add opcode 6, with 12 bit address of "5"  A reg holds 14 
+000 000 000 000 110 //tc to 6 so we can set extracode flag high
+110 000 000 000 101 //subtract opcode 6 (with extracode high), with 12 bit address of "5". A reg holds 10 again. 
+101 100 000 000 110 // transfer to storage, opcode 5 quarter 4, write A (holding 10) into Mem[6]
+finish instruction
