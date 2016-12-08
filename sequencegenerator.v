@@ -14,14 +14,15 @@ module sequence_generator
     output reg tp7,
 	output reg tp8,
 	output reg tp9,
-    output reg tp10
+    output reg tp10,
+    output reg tp11
     );
     reg [3:0] counter=0;
 
     always @(negedge clk) begin
         counter <= (counter +1 )%10 ;
         if (counter == 0)begin
-			tp10 <= 0;
+			tp11 <= 0;
             tp1 <= 1;
         end
         if (counter == 1)begin
@@ -59,6 +60,10 @@ module sequence_generator
         if (counter == 9)begin
             tp9 <= 0;
             tp10 <= 1;
+        end
+        if (counter == 10)begin
+            tp10 <= 0;
+            tp11 <= 1;
         end
     end
 
