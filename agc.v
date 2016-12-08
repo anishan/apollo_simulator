@@ -131,8 +131,9 @@ always @(posedge clk) begin
             index_flag <=0;
         end
     end
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     case (OpCode)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--TC--//
 	   tc: begin
            // transfer control
            //have it write the jump address to Z on second tp while Q is set to Z
@@ -156,6 +157,7 @@ always @(posedge clk) begin
        ccsanddv: begin
             //count, compare and skip or dv
             //check extracode_flag
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--DV--//
             if (extracode_flag) begin
                 //then DV
                 if (tp6) begin
@@ -203,6 +205,7 @@ always @(posedge clk) begin
             end
             else begin
                 //then CCS
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-CCS--//
                 extracode_flag <= 0;
                 if (tp6 ) begin // read from mem
                     memWE <= 0;
@@ -257,6 +260,7 @@ always @(posedge clk) begin
 
        indexandxchandts: begin
 		  // index
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-INDEX-//
 		  if (QC == 2'b00) begin
             //extra should be high.
             //add the data retrieved at address specified to the next instruction -- see tp == 4 (not case)
@@ -268,6 +272,7 @@ always @(posedge clk) begin
             end
        	  end
        	  if (QC == 2'b11) begin
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--EXH-//
             //exchange
             if (tp6 == 1) begin
                 memWE <=0;
@@ -297,6 +302,7 @@ always @(posedge clk) begin
        	  end
 		  if (QC == 2'b10) begin
             // transfer to storage TS
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--TS--//
 			if (tp6) begin
 				memWE <= 0;
 				MemAddr <= aAddr;
@@ -335,6 +341,7 @@ always @(posedge clk) begin
        end
        cs: begin
         //clear and subtract
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--CS--//
         //load reg A with @ a mem
             if (tp6 == 1) begin
                 memWE <=0;
@@ -359,6 +366,7 @@ always @(posedge clk) begin
        adandsu: begin
             if (extracode_flag) begin
            //then subtract
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--SU--//
 
            if (tp6 == 1) begin
                //save mem[addr] given to reg G
@@ -394,6 +402,7 @@ always @(posedge clk) begin
             end
             else begin
            //then add
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--AD--//
             if (tp6 == 1) begin
                 //save mem[addr] given to reg G
                 memWE <=0;
@@ -408,7 +417,7 @@ always @(posedge clk) begin
                 MemAddr <= aAddr;
                 A_A_rod <= DataOut;
                 S2 <= DataOut[14]; //keep a duplicate of most sig for overflow
-                
+
             end
 
            if (tp8 == 1) begin
@@ -444,6 +453,7 @@ always @(posedge clk) begin
        maskandmp: begin
             if (extracode_flag) begin
             //then multiply
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--MU--//
             //two single precision => double precision
                 if (tp6) begin
                     memWE <=0;
@@ -485,6 +495,7 @@ always @(posedge clk) begin
             end
             else begin
             //then mask
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-MASK-//
             if (tp6 == 1) begin
                 //save mem[addr] given to reg G
                 memWE <=0;
