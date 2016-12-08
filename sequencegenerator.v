@@ -25,43 +25,43 @@ module sequence_generator
 			tp11 <= 0;
             tp1 <= 1;
         end
-        if (counter == 1)begin
+        if (counter == 2)begin
             tp1 <= 0;
             tp2 <= 1;
         end
-        if (counter == 2)begin
+        if (counter == 4)begin
             tp2 <= 0;
             tp3 <= 1;
         end
-        if (counter == 3)begin
+        if (counter == 6)begin
             tp3 <= 0;
             tp4 <= 1;
         end
-        if (counter == 4)begin
+        if (counter == 8)begin
             tp4 <= 0;
             tp5 <= 1;
         end
-        if (counter == 5)begin
+        if (counter == 10)begin
             tp5 <= 0;
             tp6 <= 1;
         end
-        if (counter == 6)begin
+        if (counter == 12)begin
             tp6 <= 0;
             tp7 <= 1;
         end
-		if (counter == 7)begin
+		if (counter == 14)begin
             tp7 <= 0;
             tp8 <= 1;
         end
-		if (counter == 8)begin
+		if (counter == 16)begin
 			tp8 <= 0;
 			tp9 <= 1;
         end
-        if (counter == 9)begin
+        if (counter == 18)begin
             tp9 <= 0;
             tp10 <= 1;
         end
-        if (counter == 10)begin
+        if (counter == 20)begin
             tp10 <= 0;
             tp11 <= 1;
         end
