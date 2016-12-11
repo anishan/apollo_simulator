@@ -41,20 +41,22 @@ reg [14:0] instr;
 reg overflow_flag;
 reg [14:0] G_reg;
 reg S2; //the copy of the most sig bit for overflow checks
-reg hiddenreg; //for index
+reg [14:0] hiddenreg; //for index
 reg index_flag; //to know the next instruction needs + the hidden reg
 reg clk_flag =0; // Temp, I hope hope hope
 
 // Encodings for Operations
 localparam tc = 3'b000;
 localparam ccsanddv = 3'b001;
+localparam  ddouble = 3'b010;
+localparam  double = 3'b011;
+localparam cs = 3'b100;
 localparam indexandxchandts = 3'b101;
 //localparam xch = 3'b101;
-localparam cs = 3'b100;
 //localparam ts = 3'b101;
 localparam adandsu = 3'b110;
 localparam maskandmp = 3'b111;
-// the double instruction
+
 localparam  aAddr = 12'b000000000000;
 localparam  qAddr = 12'b000000000001;
 localparam  zAddr = 12'b000000000010;
