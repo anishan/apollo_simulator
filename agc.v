@@ -237,16 +237,22 @@ always @(posedge clk) begin
 					S2 <= G_reg[14];
                 end
                 if (tp8) begin
-					// jump PC depending on DABS value
+					// jump PC depending on original value
 					// if greater than zero or positive overflow, add 0, so do nothing
-					if (temp_computation[14:0] == 15'b000000000000000) begin // if equals +0
+					if (!clk_flag) begin
+					if (G_reg == 15'b000000000000000) begin // if equals +0
 						PC <= PC + 1;
 					end
-					if ((temp_computation[14] == 1 &&  temp_computation[14:0] != 15'b111111111111111) || (S2 == 0 && temp_computation[14] == 1)) begin // less than zero or negative overflow
+					if ((G_reg[14] == 1 &&  G_reg[14:0] != 15'b111111111111111) || (S2 == 0 && G_reg[14] == 1)) begin // less than zero or negative overflow
 						PC <= PC + 2;
 					end
-					if (temp_computation[14:0] == 15'b111111111111111) begin // if equals -0
+					if (G_reg == 15'b111111111111111) begin // if equals -0
 						PC <= PC + 3;
+					end
+					clk_flag <= 1;
+					end
+					else begin
+					clk_flag <= 0;
 					end
                 end
 				if (tp9) begin
@@ -272,8 +278,8 @@ always @(posedge clk) begin
                 index_flag <=1;
             end
        	  end
-       	  if (QC == 2'b11) begin
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--EXH-//
+       	  if (QC == 2'b11) begin
             //exchange
             if (tp6 == 1) begin
                 memWE <=0;
