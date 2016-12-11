@@ -41,20 +41,22 @@ reg [14:0] instr;
 reg overflow_flag;
 reg [14:0] G_reg;
 reg S2; //the copy of the most sig bit for overflow checks
-reg hiddenreg; //for index
+reg [14:0] hiddenreg; //for index
 reg index_flag; //to know the next instruction needs + the hidden reg
 reg clk_flag =0; // Temp, I hope hope hope
 
 // Encodings for Operations
 localparam tc = 3'b000;
 localparam ccsanddv = 3'b001;
+localparam  ddouble = 3'b010;
+localparam  double = 3'b011;
+localparam cs = 3'b100;
 localparam indexandxchandts = 3'b101;
 //localparam xch = 3'b101;
-localparam cs = 3'b100;
 //localparam ts = 3'b101;
 localparam adandsu = 3'b110;
 localparam maskandmp = 3'b111;
-// the double instruction
+
 localparam  aAddr = 12'b000000000000;
 localparam  qAddr = 12'b000000000001;
 localparam  zAddr = 12'b000000000010;
@@ -237,16 +239,22 @@ always @(posedge clk) begin
 					S2 <= G_reg[14];
                 end
                 if (tp8) begin
-					// jump PC depending on DABS value
+					// jump PC depending on original value
 					// if greater than zero or positive overflow, add 0, so do nothing
-					if (temp_computation[14:0] == 15'b000000000000000) begin // if equals +0
+					if (!clk_flag) begin
+					if (G_reg == 15'b000000000000000) begin // if equals +0
 						PC <= PC + 1;
 					end
-					if ((temp_computation[14] == 1 &&  temp_computation[14:0] != 15'b111111111111111) || (S2 == 0 && temp_computation[14] == 1)) begin // less than zero or negative overflow
+					if ((G_reg[14] == 1 &&  G_reg[14:0] != 15'b111111111111111) || (S2 == 0 && G_reg[14] == 1)) begin // less than zero or negative overflow
 						PC <= PC + 2;
 					end
-					if (temp_computation[14:0] == 15'b111111111111111) begin // if equals -0
+					if (G_reg == 15'b111111111111111) begin // if equals -0
 						PC <= PC + 3;
+					end
+					clk_flag <= 1;
+					end
+					else begin
+					clk_flag <= 0;
 					end
                 end
 				if (tp9) begin
@@ -272,8 +280,8 @@ always @(posedge clk) begin
                 index_flag <=1;
             end
        	  end
-       	  if (QC == 2'b11) begin
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--EXH-//
+       	  if (QC == 2'b11) begin
             //exchange
             if (tp6 == 1) begin
                 memWE <=0;
