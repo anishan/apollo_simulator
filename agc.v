@@ -176,6 +176,7 @@ always @(posedge clk) begin
                     memWE <= 0;
                     MemAddr <= lAddr;
                     temp_computation[14:0] <= DataOut;
+					$display("L register holds lower bits %b DataOut: %b", temp_computation, DataOut);
                 end
                 if (tp9) begin
                     // temp2_computation <= temp_computation/G_reg;
@@ -311,6 +312,12 @@ always @(posedge clk) begin
 				G_reg[14] <= S2;
 			end
 			if (tp7) begin
+				// if (!clk_flag) begin
+				//
+				// end
+				// else if ()begin
+				// 	memWE <= 1;
+				// end
 				memWE <= 1;
 				MemAddr <= {2'b00, Addr10};
 				DataIn <= G_reg;
@@ -466,12 +473,17 @@ always @(posedge clk) begin
                 MemAddr <= aAddr;
                 A_A_rod <= DataOut;
                 S2 <= DataOut[14]; //keep a duplicate of most sig for overflow
-
             end
 
            if (tp8 == 1) begin
 				if (!clk_flag) begin
+					if (G_reg[14] == DataOut[14]) begin
 					G_reg <= G_reg + DataOut; //reg G's contents + reg A's contents
+					end
+					else begin
+					G_reg <= G_reg + DataOut + 1; //ones complement vs. two's complement
+					end
+
 					if (S2 != G_reg[14]) begin // there has been overflow
 					  overflow_flag <= 1;
 				   end
@@ -507,25 +519,44 @@ always @(posedge clk) begin
                 if (tp6) begin
                     memWE <=0;
                     MemAddr <= Addr12;
-                    G_reg <= DataOut;
+					if (DataOut[14] == 1) begin
+						temp2_computation <= {15'b111111111111111, DataOut};
+					end
+					else begin
+						temp2_computation <= {15'b000000000000000, DataOut};
+					end
+
                 end
                 if (tp7) begin
                     MemAddr <= aAddr;
                     memWE <=0;
+					if (DataOut[14] == 1) begin
+						temp3_computation = {15'b111111111111111, DataOut};
+					end
+					else begin
+						temp3_computation = {15'b000000000000000, DataOut};
+					end
                     A_A_rod<= DataOut;
                     //overflow correction
-                    if (DataOut[14] == G_reg[14]) begin //checking the sign of both operands
+                    if (DataOut[14] == temp2_computation[29]) begin //checking the sign of both operands
                         S2 <= 0; //sign of result is positive (pos*pos = pos, neg*neg = pos)
                     end
                     else begin
                         S2 <= 1; //sign of result is negative (pos*neg = neg, and vice versa)
                     end
-                    temp_computation <= G_reg * DataOut;
+					if (temp2_computation[29] != temp3_computation[29]) begin
+                    	temp_computation <= (temp2_computation * temp3_computation) + 1;
+					end
+					else begin
+						temp_computation <= (temp2_computation * temp3_computation);
+					end
+
                 end
                 if (tp8) begin
                     memWE <=1;
                     MemAddr <= aAddr;
-                    DataIn <= {S2, temp_computation[28:16]}; //save higher bits in A with overflow correction
+                    DataIn <= temp_computation[29:16]; //save higher bits in A with overflow correction
+					DataIn[14] <= temp_computation[29];   //it was not taking the 29th bit without some force.
                     A_A_rod <= DataIn;
 
                 end
@@ -534,7 +565,7 @@ always @(posedge clk) begin
                     MemAddr <= lAddr;
                     DataIn <= temp_computation[15:0]; //save lower bits in L
                     extracode_flag <= 0;
-					if (S2 != G_reg[14]) begin // there has been overflow
+					if (S2 != temp2_computation[29]) begin // there has been overflow
 					  overflow_flag <= 1;
 				   end
 				   else begin
