@@ -1,14 +1,19 @@
-# Page 1207
-		BLOCK	02
-
 # SINGLE PRECISION SINE AND COSINE
 
-		COUNT	02/INTER
+# Register Definitions
+A = 1
+TEMK = 16
+SPT = 17 // reg 17, holds the address of the SPT instruction
+C1/2 = 18 // holds .7853134 = 0.11001001000010
+C3/2 = 19 // holds (C3/2*1/4) = -.3216147/4 = -0.080403675 = 1.00010100100101 // the 1 is the negative sign bit
+C5/2 = 20 // holds (C5/2 *1/32) = .0363551/32 = 0.0000000001001
 		
 SPCOS	AD	HALF		# ARGUMENTS SCALED AT PI
 In order to do cos, we need to scale sin. cos(x) = sin(x+pi/2). However, since the arguments are scaled at pi, we just need to do cos(x) = sin(x+1/2)
 The HALF register holds 1/2. So if we want to do cos, we need to add 1/2 to the input of sin.
 Mem[A] = Mem[A] + 1/2
+110 000 000 000 101
+
 
 SPSIN	TS	TEMK
 A gets transfered to TEMK register. A hold the value that we're taking the sin of. Mem[A] = x, and we do sin(x)
