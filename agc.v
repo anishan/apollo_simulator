@@ -48,7 +48,7 @@ reg clk_flag =0; // Temp, I hope hope hope
 // Encodings for Operations
 localparam tc = 3'b000;
 localparam ccsanddv = 3'b001;
-localparam  ddouble = 3'b010;
+localparam  ddoubleandtcf = 3'b010;
 localparam  double = 3'b011;
 localparam cs = 3'b100;
 localparam indexandxchandts = 3'b101;
@@ -382,8 +382,6 @@ always @(posedge clk) begin
             if (extracode_flag) begin
            //then subtract
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--SU--//
-
-
 			if (tp6 == 1) begin
                 //save mem[addr] given to reg G
                 memWE <=0;
@@ -430,41 +428,6 @@ always @(posedge clk) begin
 			end
         end
 
-           //if (tp6 == 1) begin
-           //    //save mem[addr] given to reg G
-           //    memWE <=0;
-           //    MemAddr <= Addr12;
-           //    G_reg <= DataOut;
-           //end
-
-           //if (tp7 == 1) begin
-           //    //read what is in reg A
-           //    memWE <= 0; //
-           //    MemAddr <= aAddr;
-           //    A_A_rod <= DataOut;
-           //    S2 <= DataOut[14]; //keep a duplicate of most sig for overflow
-           //    G_reg <= DataOut - G_reg; //reg A's contents -reg G's contents
-		//	   if (S2 != G_reg[14]) begin // there has been overflow
-		//		  overflow_flag <= 1;
-			//   end
-			//   else begin
-			//      overflow_flag <= 0;
-		//	   end
-         //  end
-
-          //if (tp8 == 1) begin
-          //     //save to reg A.
-          //     memWE <=1;
-          //     MemAddr <= aAddr;
-          //    DataIn <= G_reg;
-          //     A_A_rod <= DataIn;
-          //     extracode_flag <= 0;
-          //end
-
-            //end
-            //else begin
-
-           //then add
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--AD--//
 			else begin
             if (tp6 == 1) begin
@@ -518,7 +481,83 @@ always @(posedge clk) begin
 			end
         end
        end
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////--DB--//
+	   double: begin
+	   //double what's in A and save to A.
+	   		if (tp6) begin //read A
+				MemAddr <= aAddr;
+				memWE <= 0;
+				G_reg <= DataOut;
+				A_A_rod <= G_reg;
+			end
+	   		if (tp7) begin
+				if (!clk_flag) begin
+					G_reg <= G_reg * 2;
+					A_A_rod <= G_reg;
+					clk_flag <= 1;
+				end
+				else begin
+					clk_flag <= 0;
+				end
+			end
+			if (tp8) begin //save to A
+				memWE <= 1;
+				MemAddr <= aAddr;
+				DataIn <= G_reg;
+				A_A_rod <= G_reg;
+			end
+	   end
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-DDB--//
+	   ddoubleandtcf: begin
+	   	if (Addr10 <= 10'b0000000001) begin
+	   		if (tp6) begin //read A
+				MemAddr <= aAddr;
+				memWE <= 0;
+				temp_computation[29:15] <= DataOut;
+				A_A_rod <= DataOut;
+			end
+			if (tp7) begin //read L
+				MemAddr <= lAddr;
+				memWE <= 0;
+				temp_computation[14:0] <= DataOut;
+			end
+			if (tp8) begin //double (AL)
+				if (!clk_flag) begin
+					temp_computation <= 2* temp_computation;
+					A_A_rod <= temp_computation[29:15];
+					clk_flag <=1;
+				end
+				else begin
+					clk_flag <=0;
+				end
+			end
+			if (tp9) begin //save to A
+				MemAddr <= aAddr;
+				DataIn <= temp_computation[29:15];
+				A_A_rod <= DataIn;
+				memWE <= 1;
+			end
+			if (tp10) begin //save to L
+				MemAddr <= lAddr;
+				DataIn <= temp_computation[14:0];
+				memWE <= 1;
+			end
+		end
 
+		else begin
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-TCF--//
+			// then tcf
+			if (Addr12[11:10] != 2'b00) begin //can't jump into erasable
+				if (tp6) begin
+				// see what in the address. do not save Z to Q like in TC!
+				//write the jump address to reg Z
+				memWE <=1;
+				MemAddr <= zAddr;
+				DataIn <= Addr12;
+				end
+			end
+	   end
+   end
        maskandmp: begin
             if (extracode_flag) begin
             //then multiply
@@ -563,7 +602,7 @@ always @(posedge clk) begin
                 if (tp8) begin
                     memWE <=1;
                     MemAddr <= aAddr;
-                    DataIn <= temp_computation[29:16]; //save higher bits in A with overflow correction
+                    DataIn <= temp_computation[29:15]; //save higher bits in A with overflow correction
 					DataIn[14] <= temp_computation[29];   //it was not taking the 29th bit without some force.
                     A_A_rod <= DataIn;
 
@@ -571,7 +610,7 @@ always @(posedge clk) begin
                 if (tp9) begin
                     memWE <=1;
                     MemAddr <= lAddr;
-                    DataIn <= temp_computation[15:0]; //save lower bits in L
+                    DataIn <= temp_computation[14:0]; //save lower bits in L
                     extracode_flag <= 0;
 					if (S2 != temp2_computation[29]) begin // there has been overflow
 					  overflow_flag <= 1;

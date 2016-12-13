@@ -16,7 +16,7 @@
 110 000 000 001 000 //A holds 4, so add Mem[8] which holds 6, and save 10 to reg A. 
 111 000 000 001 000 // MASK reg A holding 10 with Mem[8] holding 6. Our expected result is 2 bc 1010 & 0110 = 0010
 000 000 000 000 110 //tc to 6 to get extracode high
-111 000 000 001 000 // Multiply register A (holding 2) with Mem[8] holding +6, to get 12.  
+111 000 000 001 000 // Multiply register A (holding 2) with Mem[8] holding +6, to get 12 in L and 0 in A (because L holds lower bits).  
  	use Mem[5] (holding -6) to get -12 with  111 000 000 000 101
 000 000 000 000 110 //tc to 6 to get extracode high
 001 000 000 001 010 // divide register A& L (l currently holds 12) with Mem[10] which holds 2 (preloaded). A is holding 2
@@ -31,4 +31,9 @@
 101 110 000 001 011 //xch with Mem[11] holding 0 does! 
 101 000 000 001 000 //index so next instruction has K+ Mem[8], which holds 6.  
 110 000 000 000 101 //add Mem[k+6] -> Mem[5+ 6] --> Mem[11] -->  which currently holds 5. A should hold 0+5 = 5. 
+011 000 000 000 000 // db double A, holding 5, expecting 10. 
+010 000 000 000 001 // ddb double A and L. expecting 1010 + 000000000000010 , expecting 000000000010100 00000000000100
+010 010 000 011 001 //tcf to "in 2" instruction, Mem[1049]
+110 000 000 001 000 //bogus to skip, add A (holding 20) to Mem[8], holding 6, to get 26. 
+110 000 000 001 011 //add A (holding 20 still hopefully) to Mem[11], which holds 5, to get 25. 
 finish instruction 111 111 111 111 111
