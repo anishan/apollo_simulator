@@ -71,17 +71,6 @@ Data_memory memory(memWE, clk, MemAddr, DataIn, DataOut);
 //decode the instruction just read from memory
 InstrFetchUnit instrFetch(clk, tp5, instr, OpCode, QC, Peripheral_C, Addr12, Addr10);
 
-//timing pulses
-//tp 1: fetch pc from z reg
-//tp 2: write incremented pc to z reg
-//tp 3: instruction fetch from memory
-//tp 4: instruction decode
-//tp 5: 1st opportunity to save to a reg
-//tp 6: 2nd save to reg
-//tp 7:
-//tp 8:
-//tp 9:
-
 always @(posedge clk) begin
 	if ((OpCode == 3'b111) && (Addr12 == 12'b111111111111)) begin
 		$display("before finish");
