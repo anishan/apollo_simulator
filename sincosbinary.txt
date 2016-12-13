@@ -1,0 +1,109 @@
+# SINGLE PRECISION SINE AND COSINE
+
+# Register Definitions
+A = 1
+TEMK = 16
+SPT = 17 // reg 17, holds the address of the SPT instruction
+C1/2 = 18 // holds .7853134 = 0.11001001000010
+C3/2 = 19 // holds (C3/2*1/4) = -.3216147/4 = -0.080403675 = 1.00010100100101 // the 1 is the negative sign bit
+C5/2 = 20 // holds (C5/2 *1/32) = .0363551/32 = 0.0000000001001
+		
+SPCOS	AD	HALF		# ARGUMENTS SCALED AT PI
+In order to do cos, we need to scale sin. cos(x) = sin(x+pi/2). However, since the arguments are scaled at pi, we just need to do cos(x) = sin(x+1/2)
+The HALF register holds 1/2. So if we want to do cos, we need to add 1/2 to the input of sin.
+Mem[A] = Mem[A] + 1/2
+110 000 000 000 101
+
+
+SPSIN	TS	TEMK
+A gets transfered to TEMK register. A hold the value that we're taking the sin of. Mem[A] = x, and we do sin(x)
+Mem[A] = x
+Mem[TEMK] = x
+
+		TCF	SPT
+Jump to SPT instruction
+
+		CS	TEMK
+// this doesnt make sense yet, we've skipped over it
+
+SPT		DOUBLE
+Double the value in A, and store to A. 
+Mem[A] = 2x
+
+		TS	TEMK
+Mem[TEMK] = 2x
+
+		TCF	POLLEY
+Go to polley
+
+		XCH	TEMK
+		INDEX	TEMK
+		AD 	LIMITS
+		COM
+		AD	TEMK
+		TS	TEMK
+		TCF	POLLEY
+		TCF	ARG90
+
+POLLEY	EXTEND
+make extend go high (so we can multiply)
+
+		MP	TEMK
+multiply A*tempk
+Mem[A] = (2x)*(2x) = 4x^2[higher bits] (since this is all a fraction, basically rounding)
+Mem[L] = (2x)*(2x) = 4x^2[lower bits]
+
+		TS	SQ
+transer a to temp reg SQ
+Mem[SQ] = 4x^2[higher bits]
+
+		EXTEND
+make extra go high
+
+		MP	C5/2
+multiply A by C5/2, which is a constant: C5/2, DEC .0363551. This is 1/2*C5 from hastings 3 terms
+Mem[A] = 4x^2*C5/2
+
+		AD	C3/2
+add A by C3/2, which is a constant C3/2 = DEC -.3216147	
+Mem[A] = (4x^2*C5/2) + C3/2
+
+		EXTEND
+make extra go high
+
+		MP	SQ
+Mem[A] = Mem[A] * Mem[SQ]
+	   = ((4x^2*C5/2) + C3/2) * 4x^2[higher bits]
+	   = 16*C5/2)*x^4 + C3/2*4*x^2
+	   = 8*C5*x^4 + 2*C3*x^2
+
+		AD	C1/2
+add A by C1/2, which is a constant C1/2 = DEC .7853134
+Mem[A] = 8*C5*x^4 + 2*C3*x^2 + C1/2
+
+		EXTEND
+make extra go high
+
+		MP	TEMK
+multiply A by TEMK
+Mem[AL] = Mem[A] * Mem[TEMK]
+	   = (8*C5*x^4 + 2*C3*x^2 + C1/2) * 2x
+	   = 16*C5*x^5 + 4*C3*x^3 + C1*x
+
+		DDOUBL
+double AL into AL (double precision)
+Mem[AL] = 2 * (16*C5*x^5 + 4*C3*x^3 + C1*x)
+	    = 32*C5*x^5 + 4*C3*x^3 + C1*x
+
+		TS	TEMK
+transer to storage temk
+Mem[TEMK] = 32*C5*x^5 + 4*C3*x^3 + C1*x [higher bits]
+
+		TC	Q
+// for now, assuming that jump back to whatever called sin and cos
+
+ARG90	INDEX	A
+		CS	LIMITS
+		TC	Q		# RESULT SCALED AT 1.
+		
+# SPROOT WAS DELETED IN REV 51 OF MASTER. ASS. CONT. HAS CARDS.
