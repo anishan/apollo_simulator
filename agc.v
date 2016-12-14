@@ -40,7 +40,7 @@ wire [9:0] Addr10;
 reg [14:0] instr;
 reg overflow_flag;
 reg [14:0] G_reg;
-reg S2; //the copy of the most sig bit for overflow checks
+reg S2 = 0; //the copy of the most sig bit for overflow checks
 reg [14:0] hiddenreg; //for index
 reg index_flag; //to know the next instruction needs + the hidden reg
 reg clk_flag =0; // Temp, I hope hope hope
@@ -441,7 +441,7 @@ always @(posedge clk) begin
 					G_reg <= G_reg + DataOut; //reg G's contents + reg A's contents
 					end
 					else begin
-					G_reg <= G_reg + DataOut + 1; //ones complement vs. two's complement
+					G_reg <= G_reg + DataOut; //ones complement vs. two's complement
 					end
 
 					if (S2 != G_reg[14]) begin // there has been overflow
@@ -563,25 +563,25 @@ always @(posedge clk) begin
 					end
 
                 end
-                if (tp7) begin
-                    MemAddr <= aAddr;
-                    memWE <=0;
+                if (tp7) begin // this needs both clock cycles
+	                MemAddr <= aAddr;
+	                memWE <=0;
 					if (DataOut[14] == 1) begin
 						temp3_computation = {15'b111111111111111, DataOut};
 					end
 					else begin
 						temp3_computation = {15'b000000000000000, DataOut};
 					end
-                    A_A_rod<= DataOut;
-                    //overflow correction
-                    if (DataOut[14] == temp2_computation[29]) begin //checking the sign of both operands
-                        S2 <= 0; //sign of result is positive (pos*pos = pos, neg*neg = pos)
-                    end
-                    else begin
-                        S2 <= 1; //sign of result is negative (pos*neg = neg, and vice versa)
-                    end
+	                A_A_rod<= DataOut;
+	                //overflow correction
+	                if (DataOut[14] == temp2_computation[29]) begin //checking the sign of both operands
+	                    S2 <= 0; //sign of result is positive (pos*pos = pos, neg*neg = pos)
+	                end
+	                else begin
+	                    S2 <= 1; //sign of result is negative (pos*neg = neg, and vice versa)
+	                end
 					if (temp2_computation[29] != temp3_computation[29]) begin
-                    	temp_computation <= (temp2_computation * temp3_computation) + 1;
+	                	temp_computation <= (temp2_computation * temp3_computation) + 1;
 					end
 					else begin
 						temp_computation <= (temp2_computation * temp3_computation);
@@ -589,11 +589,18 @@ always @(posedge clk) begin
 
                 end
                 if (tp8) begin
-                    memWE <=1;
-                    MemAddr <= aAddr;
-                    DataIn <= temp_computation[29:15]; //save higher bits in A with overflow correction
-					DataIn[14] <= temp_computation[29];   //it was not taking the 29th bit without some force.
-                    A_A_rod <= DataIn;
+					if (clk_flag == 0) begin
+						temp_computation <= {temp_computation[28:0], 1'b0};
+						clk_flag = 1;
+					end
+					else begin
+		                memWE <=1;
+		                MemAddr <= aAddr;
+		                DataIn <= temp_computation[29:15]; //save higher bits in A with overflow correction
+						DataIn[14] <= temp_computation[29];   //it was not taking the 29th bit without some force.
+		                A_A_rod <= DataIn;
+						clk_flag = 0;
+					end
 
                 end
                 if (tp9) begin

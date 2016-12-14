@@ -5,7 +5,7 @@ A = 1
 TEMK = 16
 SQ = 22
 # Pre-load these:
-A = x
+A = x // 001000000000000
 SPT = 17 // reg 17, holds the address of the SPT instruction
 C1/2 = 18 // holds .7853134 = 0.11001001000010
 C3/2 = 19 // holds (C3/2*1/4) = -.3216147/4 = -0.080403675 = 1.00010100100101 // the 1 is the negative sign bit
