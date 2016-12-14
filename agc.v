@@ -174,7 +174,7 @@ always @(posedge clk) begin
                     //separating quotient from remainder
                     //have to overflow correct, quotient goes in A and remainder goes in L
 					temp3_computation = temp_computation/G_reg; // quotient
-					temp2_computation[29:15] = temp3_computation[14:0];
+					temp2_computation[29:15] = temp3_computation[29:15];
 					temp3_computation = temp_computation%G_reg; // remainder
 					temp2_computation[14:0] = temp3_computation[14:0];
 					memWE <= 1;
