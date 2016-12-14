@@ -431,17 +431,23 @@ always @(posedge clk) begin
 				//G_reg = DataOut;
                 memWE <= 0;
                 MemAddr <= aAddr;
-                A_A_rod <= DataOut;
-                S2 <= DataOut[14]; //keep a duplicate of most sig for overflow
+				if (DataOut[14] == 0) begin // normal case
+                	A_A_rod <= DataOut;
+				end
+				else begin // A has a negative number
+					A_A_rod <= ~DataOut; // because ones complement negative number
+				end
+                S2 <= A_A_rod[14]; //keep a duplicate of most sig for overflow
+				
             end
 
            if (tp8 == 1) begin
 				if (!clk_flag) begin
-					if (G_reg[14] == DataOut[14]) begin
-					G_reg <= G_reg + DataOut; //reg G's contents + reg A's contents
+					if (G_reg[14] == A_A_rod[14]) begin
+					G_reg <= G_reg + A_A_rod; //reg G's contents + reg A's contents
 					end
 					else begin
-					G_reg <= G_reg + DataOut; //ones complement vs. two's complement
+					G_reg <= G_reg + A_A_rod; //ones complement vs. two's complement
 					end
 
 					if (S2 != G_reg[14]) begin // there has been overflow
@@ -556,7 +562,7 @@ always @(posedge clk) begin
                     memWE <=0;
                     MemAddr <= Addr12;
 					if (DataOut[14] == 1) begin
-						temp2_computation <= {15'b111111111111111, DataOut};
+						temp2_computation <= {15'b111111111111111, 1'b0, DataOut[13:0]}; // get rid of sign bit here
 					end
 					else begin
 						temp2_computation <= {15'b000000000000000, DataOut};
@@ -567,7 +573,7 @@ always @(posedge clk) begin
 	                MemAddr <= aAddr;
 	                memWE <=0;
 					if (DataOut[14] == 1) begin
-						temp3_computation = {15'b111111111111111, DataOut};
+						temp3_computation = {15'b000000000000000, 1'b0, DataOut[13:0]}; // get rid of sign bit here
 					end
 					else begin
 						temp3_computation = {15'b000000000000000, DataOut};
@@ -590,7 +596,7 @@ always @(posedge clk) begin
                 end
                 if (tp8) begin
 					if (clk_flag == 0) begin
-						temp_computation <= {temp_computation[28:0], 1'b0};
+						temp_computation <= {S2, temp_computation[27:0], 1'b0}; // add in signbit and bit shift
 						clk_flag = 1;
 					end
 					else begin
