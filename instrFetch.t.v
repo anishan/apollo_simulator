@@ -8,10 +8,13 @@ wire Peripheral_C;
 wire [11:0] Addr12;
 wire [9:0] Addr10;
 reg tp4;
-
 reg dutpassed;
+reg clk;
 
-InstrFetchUnit instrFetchie(tp4, instr, OpCode, QC, Peripheral_C, Addr12, Addr10);
+initial clk=0;
+always #10 clk=!clk;
+
+InstrFetchUnit instrFetchie(clk, tp4, instr, OpCode, QC, Peripheral_C, Addr12, Addr10);
 
 initial begin
 tp4 = 1;
@@ -27,6 +30,6 @@ end
 
 $display("IFETCH dut passed: %b", dutpassed);
 
-
+#1000 $finish;
 end
 endmodule

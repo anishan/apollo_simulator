@@ -1,5 +1,5 @@
 //sequence generator
-//5 pulses
+
 `timescale 1 ns / 1 ps
 
 module sequence_generator

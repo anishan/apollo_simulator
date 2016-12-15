@@ -12,11 +12,12 @@ wire tp7;
 wire tp8;
 wire tp9;
 wire tp10;
+wire tp11; 
 
 initial clk= 0;
 always #10 clk= !(clk);
 
-sequence_generator seq(clk, tp1, tp2, tp3, tp4, tp5, tp6, tp7, tp8, tp9, tp10);
+sequence_generator seq(clk, tp1, tp2, tp3, tp4, tp5, tp6, tp7, tp8, tp9, tp10, tp11);
 
 initial begin
 
