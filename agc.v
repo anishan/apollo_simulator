@@ -573,7 +573,7 @@ always @(posedge clk) begin
 	                MemAddr <= aAddr;
 	                memWE <=0;
 					if (DataOut[14] == 1) begin
-						temp3_computation = {15'b000000000000000, 1'b0, DataOut[13:0]}; // get rid of sign bit here
+						temp3_computation = {15'b111111111111111, 1'b1, DataOut[13:0]}; // get rid of sign bit here
 					end
 					else begin
 						temp3_computation = {15'b000000000000000, DataOut};

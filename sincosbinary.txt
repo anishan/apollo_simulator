@@ -8,7 +8,7 @@ SQ = 22
 A = x // 001000000000000
 SPT = 17 // reg 17, holds the address of the SPT instruction
 C1/2 = 18 // holds .7853134 = 0.11001001000010
-C3/2 = 19 // holds (C3/2*1/4) = -.3216147/4 = -0.080403675 = 1.00010100100101 // the 1 is the negative sign bit
+C3/2 = 19 // holds (C3/2*1/4) = -.3216147/4 = -0.080403675 = -0.00010100100101 = 1.11101011011010// the 1 is the negative sign bit
 C5/2 = 20 // holds (C5/2 *1/32) = .0363551/32 = 0.00000000010010
 HALF = 21 // holds 1/2 = 010000000000000
 		
