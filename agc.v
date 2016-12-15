@@ -73,7 +73,7 @@ InstrFetchUnit instrFetch(clk, tp5, instr, OpCode, QC, Peripheral_C, Addr12, Add
 
 always @(posedge clk) begin
 	if ((OpCode == 3'b111) && (Addr12 == 12'b111111111111)) begin
-		$display("before finish");
+		$display("Finished before the end of time");
 		$finish;
 	end
     if (tp1 == 1)begin //read what PC is from Z reg
@@ -167,7 +167,6 @@ always @(posedge clk) begin
                     memWE <= 0;
                     MemAddr <= lAddr;
                     temp_computation[14:0] <= DataOut;
-					$display("L register holds lower bits %b DataOut: %b", temp_computation, DataOut);
                 end
                 if (tp9) begin
                     // temp2_computation <= temp_computation/G_reg;
